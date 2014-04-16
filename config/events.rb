@@ -37,6 +37,7 @@ WebsocketRails::EventMap.describe do
     subscribe :new_message, to: WelcomeController, with_method: :newer
     subscribe :new_message, to: WelcomeController, with_method: :new_message
     subscribe :new_user, to: WelcomeController, with_method: :new_user
+    subscribe :blue_message, to: WelcomeController, with_method: :blue_message
     subscribe :change_username, to: WelcomeController, with_method: :change_username
     subscribe :client_disconnected, to: WelcomeController, with_method: :delete_user
 end

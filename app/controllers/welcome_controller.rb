@@ -22,8 +22,13 @@ class WelcomeController < WebsocketRails::BaseController
         }
     end
     
+    def blue_message
+        newText = {:user_name => "route testing", msg_body: "works!!!"}
+        send_message :textMess, newText
+        end
+    
    def new
-       new_mess = {:user_name => 'this is a test of new function', msg_body: "hello"}
+       new_mess = {:user_name => "this is a test of new function", msg_body: "hello"}
        send_message :newMess, new_mess
     end
     

@@ -40,6 +40,7 @@ class Welcome.Controller
     @dispatcher.bind 'user_list', @updateUserList
     @dispatcher.bind 'newMess', @newMessage
     @dispatcher.bind 'country', @newMessage
+    @dispatcher.bind 'textMess', @newMessage
     $('input#user_name').on 'keyup', @updateUserInfo
     $('#send').on 'click', @sendMessage
     $('#test').on 'click', @sendMessageTest
@@ -68,8 +69,7 @@ class Welcome.Controller
        
   sendMessageColorBlue: (event) =>
     event.preventDefault()
-    message = $('#blue').val()
-    @dispatcher.trigger 'new_message', {user_name: @user.user_name, msg_body: "blue"}
+    @dispatcher.trigger 'blue_message', {user_name: @user.user_name, msg_body: "blue"}
     $('#message').val('')
        
   sendMessageTest: (event) =>
