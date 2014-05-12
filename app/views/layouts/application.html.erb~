@@ -39,14 +39,14 @@
 	    $('div#message').text('Waiting for player ' + data.player_id);
 	});
       });
-    function a(){
-      $.get('<%= url_for({:action => 'select', :game_id => @game.id, :player_id => @player.id, :territory_id => 7}) =%>');
+    function a(territory_id){
+      $.get('<%= url_for({:action => 'select', :game_id => @game.id, :player_id => @player.id}) =%>;territory_id='+territory_id);
     }
     </script>
 </head>
 <body>
 <div id="message"><%= (@game.num_players >= 3) ? 'Waiting for player ' + @player.next_player.to_s : "Number of players in queue: #{@game.num_players}" %></div>
-<a href="javascript:a()"><%= image_tag "1000px-Risk_game_map_fixed.png" =%></a>
+<a href="javascript:a('9')"><%= image_tag "1000px-Risk_game_map_fixed.png" =%></a>
 <div id="status">Status: </div>
 <%= debug @game =%>
 <%= debug @player =%>

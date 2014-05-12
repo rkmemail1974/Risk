@@ -22,7 +22,6 @@ class GamesController < ApplicationController
       Pusher[@gamechannel].trigger('count', {amount:@game.num_players})
     end
     $lastPlayer = @player
-    render layout: 'application'
   end
 
   def select
