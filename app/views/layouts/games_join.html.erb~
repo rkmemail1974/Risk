@@ -33,10 +33,10 @@
 	  $('div#message').text('Number of players in queue: ' + count.amount);
 	});
 	gameChannel.bind('state', function(data) {
-	  if (data.player_id == <%= @player.id =%>)
+	  if (data.id == <%= @player.id =%>)
 	    $('div#message').text('Select a territory');
 	  else
-	    $('div#message').text('Waiting for player ' + data.player_id);
+	    $('div#message').text('Waiting for player ' + data.id);
 	});
       });
     function a(){

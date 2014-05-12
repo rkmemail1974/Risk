@@ -5,8 +5,8 @@ Risk::Application.routes.draw do
 
   # You can have the root of your site routed with "root"
   root 'games#join'
-  get '/play' => 'games#play'
-  get '/select' => 'games#select'
+    get '/play' => 'games#play'
+    get '/select' => 'games#select'
   # Example of regular route:
   #   get 'products/:id' => 'catalog#view'
 

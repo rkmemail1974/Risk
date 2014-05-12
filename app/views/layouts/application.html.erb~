@@ -15,8 +15,7 @@
         // Pusher.sockjs_host = 'sockjs-eu.pusher.com';
 
         var pusher = new Pusher('249adada598842cd452d'); // Replace with your app key
-        var channel = pusher.subscribe('private-test-channel');
-
+	var gameChannel = pusher.subscribe('<%= @gamechannel =%>');
         // Some useful debug msgs
         pusher.connection.bind('connecting', function() {
           $('div#status').text('Status: Connecting to Pusher...');
@@ -27,19 +26,30 @@
         pusher.connection.bind('failed', function() {
           $('div#status').text('Status: Connection to Pusher failed :(');
         });
-        channel.bind('subscription_error', function(status) {
-          $('div#status').text('Status: Pusher subscription_error');
+        gameChannel.bind('subscription_error', function(status) {
+          $('div#status').text('Status: Pusher subscription_error to gameChannel');
         });
-	channel.bind('new_message', function(data) {
-	  $('div#message').text('From: ' + data.from + ', Subject: ' + data.subject);
+	gameChannel.bind('count', function(count) {
+	  $('div#message').text('Number of players in queue: ' + count.amount);
+	});
+	gameChannel.bind('state', function(data) {
+	  if (data.player_id == <%= @player.id =%>)
+	    $('div#message').text('Select a territory');
+	  else
+	    $('div#message').text('Waiting for player ' + data.player_id);
 	});
       });
+    function a(){
+      $.get('<%= url_for({:action => 'select', :game_id => @game.id, :player_id => @player.id, :territory_id => 7}) =%>');
+    }
     </script>
 </head>
 <body>
+<div id="message"><%= (@game.num_players >= 3) ? 'Waiting for player ' + @player.next_player.to_s : "Number of players in queue: #{@game.num_players}" %></div>
+<a href="javascript:a()"><%= image_tag "1000px-Risk_game_map_fixed.png" =%></a>
 <div id="status">Status: </div>
-<div id="message">Message: </div>
-<%= image_tag "1000px-Risk_game_map_fixed.png" %>
+<%= debug @game =%>
+<%= debug @player =%>
 <%= yield %>
 
 </body>
