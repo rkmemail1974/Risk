@@ -18,9 +18,9 @@ development:
   adapter: postgresql
   encoding: unicode
   database: risk_development
+  host: localhost
+  port: 5432
   pool: 5
-  username: postgres
-  password: postgres
 
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have
@@ -47,14 +47,14 @@ test:
   adapter: postgresql
   encoding: unicode
   database: risk_test
+  host: localhost
+  port: 5432
   pool: 5
-  username: postgres
-  password: postgres
-
+  
 production:
   adapter: postgresql
   encoding: unicode
   database: risk_production
+  host: localhost
+  port: 5432
   pool: 5
-  username: postgres
-  password: postgres

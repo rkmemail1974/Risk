@@ -53,6 +53,15 @@ class GamesController < ApplicationController
     if (@@queuedGame.nil?)
       @@queuedGame = Game.create
       @@queuedGame.update(num_players: 0, game_state: -1)
+        @@neighbors.each do |key|
+            
+            territory = Territory.create
+            territory.update(owner_id: -1, geo_state: key,
+                             game_id: @@queuedGame.id)
+            territory.save
+            puts territory.inspect
+        end
+        
     end
     @@queuedGame
   end
