@@ -1,28 +1,42 @@
 class GamesController < ApplicationController
+  @@neighbors = { 
+    "101" => ["102", "106", "506"],
+    "102" => ["101", "106", "107", "109"],
+    "103" => ["104", "109", "204"],
+    "104" => ["103", "108", "107", "109"],
+    "105" => ["106", "107", "108","502"],
+    "106" => ["101", "102", "105", "107"],
+    "107" => ["102", "104", "105", "106", "108", "109"],
+    "108" => ["104", "105", "107"],
+    "109" => ["102", "103", "104", "107"]
+  }
+  @@queuedGame = nil
+  @@lastPlayer = nil
+  @@firstPlayer = nil
+
   def join
     @game = getQueuedGame
     @player = Player.create
     @player.update(game_id: @game.id)
     @game.update(num_players: @game.num_players + 1)
     if (@game.num_players == 1)
-      $firstPlayer = @player.id
+      @@firstPlayer = @player.id
     end
-    unless $lastPlayer.nil?
-      $lastPlayer.update(next_player: @player.id )
+    unless @@lastPlayer.nil?
+      @@lastPlayer.update(next_player: @player.id )
     end
     @gamechannel = "game-channel-#{@game.id}"
 
     if (@game.num_players >=3)
-      @player.update(next_player: $firstPlayer)
+      @player.update(next_player: @@firstPlayer)
       @game.update(game_state: 0)
-      @game.update(turn: $firstPlayer)
+      @game.update(turn: @@firstPlayer)
       Pusher[@gamechannel].trigger('state', {player_id: @game.turn})
-      $queuedGame = $lastPlayer = $firstPlayer = nil;
+      @@queuedGame = @@lastPlayer = @@firstPlayer = nil
     else
       Pusher[@gamechannel].trigger('count', {amount:@game.num_players})
     end
-    $lastPlayer = @player
-    render layout: 'application'
+    @@lastPlayer = @player
   end
 
   def select
@@ -35,11 +49,15 @@ class GamesController < ApplicationController
   end
 
   def getQueuedGame
-    if ($queuedGame.nil?)
-      $queuedGame = Game.create
-      $queuedGame.update(num_players: 0, game_state: -1)
+    if (@@queuedGame.nil?)
+      @@queuedGame = Game.create
+      @@queuedGame.update(num_players: 0, game_state: -1)
     end
-    $queuedGame
+    @@queuedGame
+  end
+
+  def isNeighbor?(geostate1, geostate2)
+    @neigbors[geostate1.to_s].include?(geostate2.to_s) ? true : false
   end
 
   def getContext
