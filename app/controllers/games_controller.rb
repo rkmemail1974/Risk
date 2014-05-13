@@ -43,8 +43,37 @@ class GamesController < ApplicationController
   def select
      render nothing: true
      getContext
+     terr_id = params[:territory_id]
+     puts "TERRITORY SELECTED: " + terr_id
      if (@player.id == @game.turn)
        @game.update(turn: @player.next_player)
+       case @game.state
+	when 0 #START OF GAME TERRITORIES SELECT
+	  #Player is selecting empty territories, till out of reinforcments
+	  #Check all Terr (if all have owner then GAME REINFORCEMENTS by calling select)
+	  if(allGameTerrTaken?)
+	    
+	  else
+	    @game.game_state = 1
+	  end
+	when 1 #START OF GAME REINFORCEMENTS
+	  #check reinforcements (if no reinforcements then TURN ATTACK)
+	    if(!allGameReinforceGone?)
+	      
+	    else
+		@game.game_state = 3
+	    end
+	when 2 #START of TURN REINFORCEMENTS
+	  #check player reinforcements (if no reinforcements then TURN ATTACK)
+
+	when 3 #TURN ATTACK
+
+	when 4 #TURN FORTIFY
+	  
+	  #after fortifing, state = TURN REINFORCEMENT for next player
+	else #BAD CALL/ERROR 
+        
+       end
        Pusher[@gamechannel].trigger('state', {player_id:@player.next_player})
      end
   end
@@ -66,8 +95,36 @@ class GamesController < ApplicationController
     @@queuedGame
   end
 
+  def allGameReinforceGone?
+    Player.where(game_id == @game.game_id) do |play|
+	if(play.reinforcements != 0) then return false end
+    end
+    return true
+  end 
+
+  def allGameTerrTaken?
+    Territory.where(game_id ==  @game.game_id)  do |terr|
+	if(terr.owner_id == -1) then return false end
+    end
+    return true
+  end
+
   def isNeighbor?(geostate1, geostate2)
     @@neigbors[geostate1.to_s].include?(geostate2.to_s) ? true : false
+  end
+
+  def roll
+    rand(6)+1
+  end
+
+  def rollDice(n)
+    a= []
+    n.times {|i| a.push(roll)}
+    return a.sort! 
+  end  
+
+  def attack(attGeoState,defGeoState)
+    
   end
 
   def getContext
