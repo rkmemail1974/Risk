@@ -59,6 +59,8 @@
 	<area shape="poly" title="America 3" coords="82,181,110,227,170,263,131,221,131,200,107,179" 				href="javascript:select('103')" target="" />
 </map>
 <div id="status">Status: </div>
+<%= debug @game =%>
+<%= debug @player =%>
 <%= yield %>
 
 </body>
