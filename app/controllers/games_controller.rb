@@ -54,7 +54,7 @@ class GamesController < ApplicationController
 	when 0 #START OF GAME TERRITORIES SELECT
 	  #Player is selecting empty territories, till out of reinforcments
 	  #Check all Terr (if all have owner then GAME REINFORCEMENTS by calling select)
-
+          
 	  #If all territories are taken move to GAME REINFORCEMENT STATE
 	  if(allGameTerrTaken?)
 		@game.game_state = 1
@@ -62,8 +62,12 @@ class GamesController < ApplicationController
 	  end
 	  #Claim Territory
 	  #If territory is free
-	  hasOwner?(terr_id)
-	  #if(hasOwner?(params[:territory_id])) end
+	  #hasOwner?(terr_id)
+	  if(hasOwner?(terr_id))
+            #Selected Territory has Owner
+	    #Pick different Territory
+          end
+          claimTerritory(terr_id)
 	when 1 #START OF GAME REINFORCEMENTS
 	  #check reinforcements (if no reinforcements then TURN ATTACK)
 	    if(allGameReinforceGone?)
@@ -93,7 +97,7 @@ class GamesController < ApplicationController
         @@neighbors.each do |key|
             
             territory = Territory.create
-            territory.update(owner_id: -1, geo_state: key,
+            territory.update(owner_id: -1, geo_state: key.first.to_i,
                              game_id: @@queuedGame.id)
             territory.save
             puts territory.inspect
@@ -126,7 +130,7 @@ class GamesController < ApplicationController
 
   #Not working correctly CAN NOT QUERY GEO_STATE
   def hasOwner?(geoState)
-    puts "HASOWNER? GEOSTATE PASSED = #{geoState}"
+    #puts "HASOWNER? GEOSTATE PASSED = #{geoState}"
     territory = Territory.where(game_id: @game.id, geo_state: geoState, owner_id: -1)
     if(territory == nil)
 	puts "GEOSTATE #{geoState} HAS OWNER"
@@ -134,6 +138,15 @@ class GamesController < ApplicationController
     end
     puts "GEOSTATE #{geoState} HAS NO OWNER"
     return false
+  end
+
+  def claimTerritory(geoState)
+    territory = Territory.find_by(game_id: @game.id, geo_state: geoState, owner_id: -1)
+    #territory = Territory.where(game_id: @game.id, geo_state: geoState)
+    if(territory == nil) then puts "Territory #{geoState} Not Found!" end
+    territory.update_attributes(owner_id: @player.id, num_armies: 1)
+    territory.save
+    puts territory.inspect
   end
 
   def isNeighbor?(geostate1, geostate2)
