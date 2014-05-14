@@ -18,7 +18,7 @@ class GamesController < ApplicationController
   def join
     @game = getQueuedGame
     @player = Player.create
-    @player.update(game_id: @game.id)
+    @player.update(game_id: @game.id, reinforcements: 9)
     @game.update(num_players: @game.num_players + 1)
     if (@game.num_players == 1)
       @@firstPlayer = @player.id
@@ -66,8 +66,9 @@ class GamesController < ApplicationController
 	  if(hasOwner?(terr_id))
             #Selected Territory has Owner
 	    #Pick different Territory
+          else
+            claimTerritory(terr_id)
           end
-          claimTerritory(terr_id)
 	when 1 #START OF GAME REINFORCEMENTS
 	  #check reinforcements (if no reinforcements then TURN ATTACK)
 	    if(allGameReinforceGone?)
@@ -128,7 +129,6 @@ class GamesController < ApplicationController
     return false
   end
 
-  #Not working correctly CAN NOT QUERY GEO_STATE
   def hasOwner?(geoState)
     #puts "HASOWNER? GEOSTATE PASSED = #{geoState}"
     territory = Territory.where(game_id: @game.id, geo_state: geoState, owner_id: -1)
@@ -141,12 +141,17 @@ class GamesController < ApplicationController
   end
 
   def claimTerritory(geoState)
+    #Territory
     territory = Territory.find_by(game_id: @game.id, geo_state: geoState, owner_id: -1)
-    #territory = Territory.where(game_id: @game.id, geo_state: geoState)
     if(territory == nil) then puts "Territory #{geoState} Not Found!" end
     territory.update_attributes(owner_id: @player.id, num_armies: 1)
     territory.save
     puts territory.inspect
+    #Reduced Player REINFORCEMENTS
+    player = Player.find_by(game_id: @game.id, id: @player.id)
+    if(player == nil) then puts "Player #{@player.id} Not Found!" end
+    player.update_attributes(reinforcements: @player.reinforcements - 1)
+    puts player.inspect
   end
 
   def isNeighbor?(geostate1, geostate2)
