@@ -44,21 +44,29 @@ class GamesController < ApplicationController
      render nothing: true
      getContext
      terr_id = params[:territory_id]
-     puts "TERRITORY SELECTED: " + terr_id
      if (@player.id == @game.turn)
        @game.update(turn: @player.next_player)
-       case @game.state
+       #terr_id = params[:territory_id]
+       puts "TERRITORY SELECTED: " + terr_id
+       puts "Game ID: " + @game.id.to_s
+       puts "Game State = #{@game.game_state}"
+       case @game.game_state
 	when 0 #START OF GAME TERRITORIES SELECT
 	  #Player is selecting empty territories, till out of reinforcments
 	  #Check all Terr (if all have owner then GAME REINFORCEMENTS by calling select)
+
+	  #If all territories are taken move to GAME REINFORCEMENT STATE
 	  if(allGameTerrTaken?)
-	    
-	  else
-	    @game.game_state = 1
+		@game.game_state = 1
+		select
 	  end
+	  #Claim Territory
+	  #If territory is free
+	  hasOwner?(terr_id)
+	  #if(hasOwner?(params[:territory_id])) end
 	when 1 #START OF GAME REINFORCEMENTS
 	  #check reinforcements (if no reinforcements then TURN ATTACK)
-	    if(!allGameReinforceGone?)
+	    if(allGameReinforceGone?)
 	      
 	    else
 		@game.game_state = 3
@@ -97,16 +105,35 @@ class GamesController < ApplicationController
 
   def allGameReinforceGone?
     Player.where(game_id == @game.game_id) do |play|
-	if(play.reinforcements != 0) then return false end
+	if(play.reinforcements != 0)
+		return false 
+	end
     end
     return true
   end 
 
+  #Returns TRUE if all territories are taken and FALSE if there is at least on avaible
   def allGameTerrTaken?
-    Territory.where(game_id ==  @game.game_id)  do |terr|
-	if(terr.owner_id == -1) then return false end
+    territory = Territory.find_by(game_id: @game.id, owner_id: -1)
+    print "ALL GAME TERRITORIES TAKEN? "
+    if(territory == nil)
+	print  "True\n"
+	return true 
     end
-    return true
+    print  "False\n"
+    return false
+  end
+
+  #Not working correctly CAN NOT QUERY GEO_STATE
+  def hasOwner?(geoState)
+    puts "HASOWNER? GEOSTATE PASSED = #{geoState}"
+    territory = Territory.where(game_id: @game.id, geo_state: geoState, owner_id: -1)
+    if(territory == nil)
+	puts "GEOSTATE #{geoState} HAS OWNER"
+	return true
+    end
+    puts "GEOSTATE #{geoState} HAS NO OWNER"
+    return false
   end
 
   def isNeighbor?(geostate1, geostate2)
