@@ -65,17 +65,17 @@ class GamesController < ApplicationController
           end
 
 	  #If all territories are taken move to GAME REINFORCEMENT STATE
-	  if(allGameTerrTaken?) then @game.game_state = 1 end
+	  if(allGameTerrTaken?) then changeGameState(1) end
 
 	when 1 #START OF GAME REINFORCEMENTS
 
 	  puts "GAME REINFORCEMENT STATE"
 
 	  #Reinforcement Territory
-	  reinforceTerritory(terr_id)
+	  #reinforceTerritory(terr_id)
 
 	  #check reinforcements (if no reinforcements then TURN ATTACK)
-	    if(allGameReinforceGone?) then @game.game_state = 3 end
+	  if(allGameReinforceGone?) then @game.game_state = 3 end
 
 	when 2 #START of TURN REINFORCEMENTS
 	  #check player reinforcements (if no reinforcements then TURN ATTACK)
@@ -107,6 +107,14 @@ class GamesController < ApplicationController
         
     end
     @@queuedGame
+  end
+
+  def changeGameState(num)
+    game = Game.find_by(id: @game.id)
+    if(game == nil) then puts "GAME NOT FOUND!" end
+    game.update(game_state: num)
+    game.save
+    puts game.inspect
   end
 
   def allGameReinforceGone?
