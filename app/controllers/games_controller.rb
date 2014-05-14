@@ -53,6 +53,8 @@ class GamesController < ApplicationController
        case @game.game_state
 	when 0 #START OF GAME TERRITORIES SELECT
           
+	  puts "GAME SELECT TERRITORIES STATE"
+
 	  if(hasOwner?(terr_id))
             #Selected Territory has Owner
 	    puts "TERRITORY HAS A OWNER"
@@ -67,8 +69,10 @@ class GamesController < ApplicationController
 
 	when 1 #START OF GAME REINFORCEMENTS
 
-	  #
-	  
+	  puts "GAME REINFORCEMENT STATE"
+
+	  #Reinforcement Territory
+	  reinforceTerritory(terr_id)
 
 	  #check reinforcements (if no reinforcements then TURN ATTACK)
 	    if(allGameReinforceGone?) then @game.game_state = 3 end
@@ -136,6 +140,14 @@ class GamesController < ApplicationController
     end
     puts "GEOSTATE #{geoState} HAS NO OWNER"
     return false
+  end
+
+  def reinforceTerritory(geoState)
+    territory = Territory.find_by(game_id: @game.id, geo_state: geoState, owner_id: @player.id)
+    if(territory) then puts "Territory #{geoState} Not Found!" end
+    territory.update_attributes(num_armies: @territory.num_armies + 1)
+    territory.save
+    puts territory.inspect
   end
 
   def claimTerritory(geoState)
