@@ -52,30 +52,27 @@ class GamesController < ApplicationController
        puts "Game State = #{@game.game_state}"
        case @game.game_state
 	when 0 #START OF GAME TERRITORIES SELECT
-	  #Player is selecting empty territories, till out of reinforcments
-	  #Check all Terr (if all have owner then GAME REINFORCEMENTS by calling select)
           
-	  #If all territories are taken move to GAME REINFORCEMENT STATE
-	  if(allGameTerrTaken?)
-		@game.game_state = 1
-		select
-	  end
-	  #Claim Territory
-	  #If territory is free
-	  #hasOwner?(terr_id)
 	  if(hasOwner?(terr_id))
             #Selected Territory has Owner
+	    puts "TERRITORY HAS A OWNER"
 	    #Pick different Territory
           else
-            claimTerritory(terr_id)
+            #Claim Territories
+	    claimTerritory(terr_id)
           end
+
+	  #If all territories are taken move to GAME REINFORCEMENT STATE
+	  if(allGameTerrTaken?) then @game.game_state = 1 end
+
 	when 1 #START OF GAME REINFORCEMENTS
+
+	  #
+	  
+
 	  #check reinforcements (if no reinforcements then TURN ATTACK)
-	    if(allGameReinforceGone?)
-	      
-	    else
-		@game.game_state = 3
-	    end
+	    if(allGameReinforceGone?) then @game.game_state = 3 end
+
 	when 2 #START of TURN REINFORCEMENTS
 	  #check player reinforcements (if no reinforcements then TURN ATTACK)
 
@@ -109,12 +106,13 @@ class GamesController < ApplicationController
   end
 
   def allGameReinforceGone?
-    Player.where(game_id == @game.game_id) do |play|
-	if(play.reinforcements != 0)
-		return false 
-	end
+    player = Player.find_by(game_id: @game.id, reinforcements: 0)
+    if(player == nil)
+      puts "ALL REINFORCEMENTS GONE" 
+      return true
     end
-    return true
+    puts "REINFORCEMENTS STILL LEFT"
+    return false
   end 
 
   #Returns TRUE if all territories are taken and FALSE if there is at least on avaible
@@ -152,6 +150,7 @@ class GamesController < ApplicationController
     if(player == nil) then puts "Player #{@player.id} Not Found!" end
     player.update_attributes(reinforcements: @player.reinforcements - 1)
     puts player.inspect
+    puts "Player #{@player.id} HAS CLAIMED #{geoState}!"
   end
 
   def isNeighbor?(geostate1, geostate2)
