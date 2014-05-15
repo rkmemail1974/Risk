@@ -14,11 +14,12 @@ class GamesController < ApplicationController
   @@queuedGame = nil
   @@lastPlayer = nil
   @@firstPlayer = nil
+  @@firstTerritorySelected = nil
 
   def join
     @game = getQueuedGame
     @player = Player.create
-    @player.update(game_id: @game.id, reinforcements: 9)
+    @player.update(game_id: @game.id, reinforcements: 5)
     @game.update(num_players: @game.num_players + 1)
     if (@game.num_players == 1)
       @@firstPlayer = @player.id
@@ -73,15 +74,19 @@ class GamesController < ApplicationController
 	  puts "GAME REINFORCEMENT STATE"
 
 	  #Reinforcement Territory
-	  #reinforceTerritory(terr_id)
+	  reinforceTerritory(terr_id)
 
-	  #check reinforcements (if no reinforcements then TURN ATTACK)
-	  if(allGameReinforceGone?) then @game.game_state = 3 end
+	  #If all reinforcments are gone move to TURN ATTACK STATE
+	  if(allGameReinforceGone?) then changeGameState(3) end
 
 	when 2 #START of TURN REINFORCEMENTS
 	  #check player reinforcements (if no reinforcements then TURN ATTACK)
 
 	when 3 #TURN ATTACK
+
+          puts "ATTACK TURN STATE"
+
+	  
 
 	when 4 #TURN FORTIFY
 	  
@@ -119,8 +124,8 @@ class GamesController < ApplicationController
   end
 
   def allGameReinforceGone?
-    player = Player.find_by(game_id: @game.id, reinforcements: 0)
-    if(player == nil)
+    players = Player.where(game_id: @game.id, reinforcements: 0)
+    if(players.length == 3)
       puts "ALL REINFORCEMENTS GONE" 
       return true
     end
@@ -152,9 +157,14 @@ class GamesController < ApplicationController
   end
 
   def reinforceTerritory(geoState)
-    territory = Territory.find_by(game_id: @game.id, geo_state: geoState, owner_id: @player.id)
-    if(territory) then puts "Territory #{geoState} Not Found!" end
-    territory.update_attributes(num_armies: @territory.num_armies + 1)
+    territory = Territory.find_by(game_id: @game.id, geo_state: geoState)
+    puts "REINFORCE TERRITORY" + territory.inspect
+    if(territory == nil)
+      puts "Territory #{geoState} Not Found!"
+    else
+      puts territory.num_armies
+      territory.update_attributes(num_armies: territory.num_armies + 1)
+    end
     territory.save
     puts territory.inspect
   end
