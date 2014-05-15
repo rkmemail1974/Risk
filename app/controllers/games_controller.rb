@@ -32,6 +32,7 @@ class GamesController < ApplicationController
       @player.update(next_player: @@firstPlayer)
       @game.update(game_state: 0)
       @game.update(turn: @@firstPlayer)
+        message(@game.turn, @game.game_state, "this is a message")
       Pusher[@gamechannel].trigger('state', {player_id: @game.turn})
       @@queuedGame = @@lastPlayer = @@firstPlayer = nil
     else
@@ -98,7 +99,7 @@ class GamesController < ApplicationController
             
             territory = Territory.create
             territory.update(owner_id: -1, geo_state: key.first.to_i,
-                             game_id: @@queuedGame.id)
+                             game_id: @@queuedGame.id, num_armies: 0)
             territory.save
             puts territory.inspect
         end
@@ -172,4 +173,46 @@ class GamesController < ApplicationController
      @player = Player.find_by(id: params[:player_id])
      @gamechannel = "game-channel-#{@game.id}"
   end
+    
+    def message(playerId, stateId, message)
+        d_stuff_101 = Territory.find_by(game_id: @game.id, geo_state: 101)
+        d_stuff_102 = Territory.find_by(game_id: @game.id, geo_state: 102)
+        d_stuff_103 = Territory.find_by(game_id: @game.id, geo_state: 103)
+        d_stuff_104 = Territory.find_by(game_id: @game.id, geo_state: 104)
+        d_stuff_105 = Territory.find_by(game_id: @game.id, geo_state: 105)
+        d_stuff_106 = Territory.find_by(game_id: @game.id, geo_state: 106)
+        d_stuff_107 = Territory.find_by(game_id: @game.id, geo_state: 107)
+        d_stuff_108 = Territory.find_by(game_id: @game.id, geo_state: 108)
+        d_stuff_109 = Territory.find_by(game_id: @game.id, geo_state: 109)
+
+        messageHash = {
+            player_id: @player.id,
+            state_id: "101",
+            game_id: @game.id,
+            message: message,
+            geo_num_101: d_stuff_101.num_armies,
+            geo_owner_101: d_stuff_101.owner_id,
+            geo_num_102: d_stuff_102.num_armies,
+            geo_owner_102: d_stuff_102.owner_id,
+            geo_num_103: d_stuff_103.num_armies,
+            geo_owner_103: d_stuff_103.owner_id,
+            geo_num_104: d_stuff_104.num_armies,
+            geo_owner_104: d_stuff_104.owner_id,
+            geo_num_105: d_stuff_105.num_armies,
+            geo_owner_105: d_stuff_105.owner_id,
+            geo_num_106: d_stuff_106.num_armies,
+            geo_owner_106: d_stuff_106.owner_id,
+            geo_num_107: d_stuff_107.num_armies,
+            geo_owner_107: d_stuff_107.owner_id,
+            geo_num_108: d_stuff_108.num_armies,
+            geo_owner_108: d_stuff_108.owner_id,
+            geo_num_109: d_stuff_109.num_armies,
+            geo_owner_109: d_stuff_109.owner_id
+
+        }
+        
+        Pusher[@gamechannel].trigger('state', {new: messageHash})
+        
+    end
+
 end

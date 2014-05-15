@@ -37,6 +37,8 @@
 	    $('div#message').text('Select a territory');
 	  else
 	    $('div#message').text('Waiting for player ' + data.player_id);
+        
+        $('div#status').text(data.new['geo_num_101']);
 	});
       });
     function select(territory_id){
